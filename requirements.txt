@@ -1,0 +1,5 @@
+git+https://github.com/huggingface/optimum-intel.git
+git+https://github.com/openvinotoolkit/nncf.git
+transformers>=4.38.1
+openvino-nightly
+onnx
