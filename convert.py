@@ -18,26 +18,6 @@ except ImportError:
     fuse_cache_reorder = None
 
 
-parser = argparse.ArgumentParser(add_help=False)
-parser.add_argument('-h',
-                    '--help',
-                    action='help',
-                    help='Show this help message and exit.')
-parser.add_argument('-m',
-                    '--model_id',
-                    default='THUDM/chatglm3-6b',
-                    required=False,
-                    type=str,
-                    help='orignal model path')
-parser.add_argument('-s',
-                    '--stateful',
-                    default=True,
-                    required=False,
-                    type=bool,
-                    help='stateful transformation')
-args = parser.parse_args()
-
-
 def patch_stateful(ov_model, model_type):
     key_value_input_names = [
         key.get_any_name() for key in ov_model.inputs if any("key_values" in key_name for key_name in key.get_names())
@@ -86,25 +66,31 @@ def cleanup_torchscript_cache():
 
 @torch.jit.script_if_tracing
 def _chatglm2_get_context_layer(query_layer: torch.Tensor, key_layer: torch.Tensor, value_layer: torch.Tensor):
-    mask = torch.zeros((query_layer.shape[-2], key_layer.shape[-2]), dtype=query_layer.dtype)
+    mask = torch.zeros(
+        (query_layer.shape[-2], key_layer.shape[-2]), dtype=query_layer.dtype)
     if query_layer.shape[2] == key_layer.shape[2]:
-        tmp_mask = torch.ones((query_layer.shape[-2], key_layer.shape[-2]), dtype=torch.bool).triu(diagonal=1)
+        tmp_mask = torch.ones(
+            (query_layer.shape[-2], key_layer.shape[-2]), dtype=torch.bool).triu(diagonal=1)
         mask.masked_fill_(tmp_mask, float("-inf"))
 
-    context_layer = torch.nn.functional.scaled_dot_product_attention(query_layer, key_layer, value_layer, attn_mask=mask)
+    context_layer = torch.nn.functional.scaled_dot_product_attention(
+        query_layer, key_layer, value_layer, attn_mask=mask)
     return context_layer
 
 
 def _core_attention_forward(self, query_layer, key_layer, value_layer, attention_mask):
-    query_layer, key_layer, value_layer = [k.permute(1, 2, 0, 3) for k in [query_layer, key_layer, value_layer]]
+    query_layer, key_layer, value_layer = [
+        k.permute(1, 2, 0, 3) for k in [query_layer, key_layer, value_layer]]
     if attention_mask is None:
-        context_layer = _chatglm2_get_context_layer(query_layer, key_layer, value_layer)
+        context_layer = _chatglm2_get_context_layer(
+            query_layer, key_layer, value_layer)
     else:
         context_layer = torch.nn.functional.scaled_dot_product_attention(
             query_layer, key_layer, value_layer, attention_mask
         )
     context_layer = context_layer.permute(2, 0, 1, 3)
-    new_context_layer_shape = context_layer.size()[:-2] + (self.hidden_size_per_partition,)
+    new_context_layer_shape = context_layer.size(
+    )[:-2] + (self.hidden_size_per_partition,)
     context_layer = context_layer.reshape(*new_context_layer_shape)
 
     return context_layer
@@ -112,9 +98,11 @@ def _core_attention_forward(self, query_layer, key_layer, value_layer, attention
 
 @torch.jit.script_if_tracing
 def _get_chatglm_attention_mask(input_ids, past_key):
-    mask = torch.zeros((input_ids.shape[1], past_key.shape[0] + input_ids.shape[1]), dtype=past_key.dtype)
+    mask = torch.zeros(
+        (input_ids.shape[1], past_key.shape[0] + input_ids.shape[1]), dtype=past_key.dtype)
     if past_key.shape[0] == 0:
-        tmp_mask = torch.ones((input_ids.shape[1], past_key.shape[0] + input_ids.shape[1]), dtype=torch.bool).triu(diagonal=1)
+        tmp_mask = torch.ones(
+            (input_ids.shape[1], past_key.shape[0] + input_ids.shape[1]), dtype=torch.bool).triu(diagonal=1)
         mask.masked_fill_(tmp_mask, float("-inf"))
     return mask
 
@@ -125,7 +113,8 @@ def _chatglm_transformer_forward(
         position_ids: Optional[torch.Tensor] = None,
         attention_mask: Optional[torch.BoolTensor] = None,
         full_attention_mask: Optional[torch.BoolTensor] = None,
-        past_key_values: Optional[Tuple[Tuple[torch.Tensor, torch.Tensor], ...]] = None,
+        past_key_values: Optional[Tuple[Tuple[torch.Tensor,
+                                              torch.Tensor], ...]] = None,
         inputs_embeds: Optional[torch.Tensor] = None,
         use_cache: Optional[bool] = None,
         output_hidden_states: Optional[bool] = None,
@@ -147,11 +136,13 @@ def _chatglm_transformer_forward(
             past_key_values = self.get_prompt(batch_size=batch_size, device=input_ids.device,
                                               dtype=inputs_embeds.dtype)
         if attention_mask is not None:
-            attention_mask = torch.cat([attention_mask.new_ones((batch_size, self.pre_seq_len)), attention_mask], dim=-1)
+            attention_mask = torch.cat([attention_mask.new_ones(
+                (batch_size, self.pre_seq_len)), attention_mask], dim=-1)
 
     if full_attention_mask is None:
         if (attention_mask is not None and not attention_mask.all()) or (past_key_values and seq_length != 1):
-            full_attention_mask = self.get_masks(input_ids, past_key_values, padding_mask=attention_mask)
+            full_attention_mask = self.get_masks(
+                input_ids, past_key_values, padding_mask=attention_mask)
         elif past_key_values is not None:
             full_attention_mask = torch.ones(batch_size, seq_length, seq_length,
                                              device=input_ids.device,
@@ -191,7 +182,8 @@ def _chatglm_transformer_forward(
 
 
 def _patch_chatglm_forward(model: "PreTrainedModel"):
-    model.transformer.forward = types.MethodType(_chatglm_transformer_forward, model.transformer)
+    model.transformer.forward = types.MethodType(
+        _chatglm_transformer_forward, model.transformer)
     for block in model.transformer.encoder.layers:
         block.self_attention.core_attention.forward = types.MethodType(
             _core_attention_forward, block.self_attention.core_attention
@@ -226,9 +218,12 @@ def convert_chatglm(pt_model: torch.nn.Module, model_path: Path):
     }
     inputs += ["position_ids", "attention_mask"]
     for idx in range(len(outs.past_key_values)):
-        inputs.extend([f"past_key_values.{idx}.key", f"past_key_values.{idx}.value"])
-        dynamic_shapes[inputs[-1]] = {0: "past_sequence + sequence", 1: "batch_size"}
-        dynamic_shapes[inputs[-2]] = {0: "past_sequence + sequence", 1: "batch_size"}
+        inputs.extend(
+            [f"past_key_values.{idx}.key", f"past_key_values.{idx}.value"])
+        dynamic_shapes[inputs[-1]
+                       ] = {0: "past_sequence + sequence", 1: "batch_size"}
+        dynamic_shapes[inputs[-2]
+                       ] = {0: "past_sequence + sequence", 1: "batch_size"}
         outputs.extend([f"present.{idx}.key", f"present.{idx}.value"])
 
     dummy_inputs = {
@@ -262,23 +257,41 @@ def convert_chatglm(pt_model: torch.nn.Module, model_path: Path):
     del ov_model
     cleanup_torchscript_cache()
     del pt_model
-    
 
 
-ir_model_path = Path('chatglm3_fp16')
-if ir_model_path.exists() == False:
-    os.mkdir(ir_model_path)
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(add_help=False)
+    parser.add_argument('-h',
+                        '--help',
+                        action='help',
+                        help='Show this help message and exit.')
+    parser.add_argument('-m',
+                        '--model_id',
+                        default='THUDM/chatglm3-6b',
+                        required=False,
+                        type=str,
+                        help='orignal model path')
+    parser.add_argument('-s',
+                        '--stateful',
+                        default=True,
+                        required=False,
+                        type=bool,
+                        help='stateful transformation')
+    args = parser.parse_args()
 
-ir_model = ir_model_path / "openvino_model.xml"
-pt_model = AutoModelForCausalLM.from_pretrained(args.model_id,
-                                             torch_dtype=torch.float32,
-                                             trust_remote_code=True,)
+    ir_model_path = Path('chatglm3_fp16')
+    if ir_model_path.exists() == False:
+        os.mkdir(ir_model_path)
 
-print("====Exporting IR=====")
-convert_chatglm(pt_model, ir_model_path)
+    ir_model = ir_model_path / "openvino_model.xml"
+    pt_model = AutoModelForCausalLM.from_pretrained(args.model_id,
+                                                    torch_dtype=torch.float32,
+                                                    trust_remote_code=True,)
 
+    print("====Exporting IR=====")
+    convert_chatglm(pt_model, ir_model_path)
 
-print("====Exporting tokenizer=====")
-tokenizer = AutoTokenizer.from_pretrained(
-    args.model_id, trust_remote_code=True)
-tokenizer.save_pretrained(ir_model_path)
+    print("====Exporting tokenizer=====")
+    tokenizer = AutoTokenizer.from_pretrained(
+        args.model_id, trust_remote_code=True)
+    tokenizer.save_pretrained(ir_model_path)
