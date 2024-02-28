@@ -271,15 +271,15 @@ if __name__ == '__main__':
                         required=False,
                         type=str,
                         help='orignal model path')
-    parser.add_argument('-s',
-                        '--stateful',
-                        default=True,
-                        required=False,
-                        type=bool,
-                        help='stateful transformation')
+    parser.add_argument('-o',
+                    '--output',
+                    default='./chatglm3_fp16',
+                    required=False,
+                    type=str,
+                    help='Required. path to save the ir model')
     args = parser.parse_args()
 
-    ir_model_path = Path('chatglm3_fp16')
+    ir_model_path = Path(args.output)
     if ir_model_path.exists() == False:
         os.mkdir(ir_model_path)
 

@@ -20,7 +20,7 @@ if __name__ == '__main__':
                         action='help',
                         help='Show this help message and exit.')
     parser.add_argument('-m',
-                        '--model_id',
+                        '--model_path',
                         default='./chatglm3_fp16',
                         required=False,
                         type=str,
@@ -30,7 +30,7 @@ if __name__ == '__main__':
                         default='./chatglm3_compressed',
                         required=False,
                         type=str,
-                        help='Required. path to save the int4 ir model')
+                        help='Required. path to save the compressed ir model')
     parser.add_argument('-p',
                         '--precision',
                         required=False,
@@ -41,12 +41,12 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     compressed_model_path = Path(args.output)
-    orignal_model_path = Path(args.model_id)
+    orignal_model_path = Path(args.model_path)
     if compressed_model_path.exists() == False:
         os.mkdir(compressed_model_path)
 
     model_config = AutoConfig.from_pretrained(
-        args.model_id, trust_remote_code=True)
+        args.model_path, trust_remote_code=True)
     gptq_applied = is_gptq(model_config)
 
     print("====loading model====")
@@ -73,5 +73,5 @@ if __name__ == '__main__':
 
     print("====exporting tokenizer====")
     tokenizer = AutoTokenizer.from_pretrained(
-        args.model_id, trust_remote_code=True)
+        args.model_path, trust_remote_code=True)
     tokenizer.save_pretrained(compressed_model_path)
