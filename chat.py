@@ -206,13 +206,7 @@ if __name__ == "__main__":
             stopping_criteria=StoppingCriteriaList(stop_tokens)
         )
 
-        def generate_and_signal_complete():
-            """
-            genration function for single thread
-            """
-            ov_model.generate(**generate_kwargs)
-
-        t1 = Thread(target=generate_and_signal_complete)
+        t1 = Thread(target=ov_model.generate, kwargs=generate_kwargs)
         t1.start()
         print("AI助手: ", end="")
         partial_text = ""
