@@ -94,10 +94,10 @@ ChatGLM3-6B-OpenVINO: 《友谊的力量：小明与小鸟的森林冒险》
 1. 为什么倒入本地模型还会报 huggingface 链接错误
    - 降级 transformers 库到 4.37.2 版本
 
-2. 需要安装OpenVINO C++ 推理引擎吗
+2. 需要安装 OpenVINO C++ 推理引擎吗
    - 不需要
 
-3. 一定要使用Intel的CPU吗
-   - 不一定，AMD的CPU 也行的。但是推荐使用Intel的CPU
-4. 支持GPU吗
-   - 支持 Intel ARC 系列 GPU
+3. 一定要使用 Intel 的硬件吗？
+   - 我们仅在 Intel 设备上尝试，我们推荐使用x86架构的英特尔设备，包括但不限制于：
+   - 英特尔的CPU，包括个人电脑CPU 和服务器CPU。
+   - 英特尔的独立显卡。例如：ARC A770 显卡。

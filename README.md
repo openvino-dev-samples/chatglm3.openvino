@@ -28,26 +28,28 @@ python3 convert.py --model_id THUDM/chatglm3-6b --output {your_path}/chatglm3-6b
 
 ### Parameters that can be selected
 
-* `--model_id` - path (absolute path) to be used from Huggngface_hub (https://huggingface.co/models) or the directory where the model is located.
+* `--model_id` - path (absolute path) to be used from Huggngface_hub (https://huggingface.co/models) or the directory
+  where the model is located.
 * `--output` - the address where the converted model is saved
 * If you have difficulty accessing `huggingface`, you can try to use `mirror-hf` to download
 
-   Linux
+  Linux
      ```
      export HF_ENDPOINT=https://hf-mirror.com
      ```
-   Windows Powershell
+  Windows Powershell
      ```
      $env:HF_ENDPOINT = "https://hf-mirror.com"
      ```
-   Download model
+  Download model
      ```
      huggingface-cli download --resume-download --local-dir-use-symlinks False THUDM/chatglm3-6b --local-dir {your_path}/chatglm3-6b
      ```
 
 parameter:
 
-* `--model_id` - model_id is used to download from Huggngface_hub (https://huggingface.co/models) or the path to the directory where the pytorch model is located.
+* `--model_id` - model_id is used to download from Huggngface_hub (https://huggingface.co/models) or the path to the
+  directory where the pytorch model is located.
 * `--output` - Path to save the model.
 
 ## 3. Quantitative model (optional)
@@ -91,13 +93,15 @@ ChatGLM3-6B-OpenVINO: "The Power of Friendship: Xiao Ming and Bird's Forest Adve
 ```
 
 ## common problem
+
 1. Why does a huggingface link error appear when importing a local model?
     - Downgrade transformers library to version 4.37.2
 
 2. Do I need to install the OpenVINO C++ inference engine?
     - unnecessary
 
-3. Do I have to use Intel CPU?
-    - Not necessarily, AMD CPU will also work. But it is recommended to use Intel CPU
-4. Does it support GPU?
-    -Support Intel ARC series GPU
+3. Do I have to use Intel hardware?
+    - We only tried it on Intel devices, and we recommend using x86 architecture Intel devices, including but not
+      limited to:
+    - Intel CPU, including personal computer CPU and server CPU.
+    - Intel's discrete graphics card. For example: ARC A770 graphics card.
