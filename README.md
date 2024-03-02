@@ -1,8 +1,10 @@
-# chatglm3.openvino
+# chatglm3.openvino Demo
 
-This is a sample for how to deploy ChatGLM3 with OpenVINO
+Here is an example of how to deploy ChatGLM3 using OpenVINO
 
-**1. Set-up the environments:**
+## 1. Environment configuration
+
+We recommend that you create a new virtual environment and then install the dependencies as follows.
 
 ```
 python3 -m venv openvino_env
@@ -16,63 +18,86 @@ pip install wheel setuptools
 pip install -r requirements.txt
 ```
 
-**2. Download and Convert model:**
+## 2. Convert model
+
+Since the Huggingface model needs to be converted to an OpenVINO IR model, you need to download the model and convert.
 
 ```
-python3 convert.py
-```
-Paramters:
-* `--model_id` - model_id for downloading from huggngface_hub (https://huggingface.co/models) or path with directory where pytorch model located.
-*  `--output` - path to save model.
-* For PRC user, you can download model with `mirror-hf` in advance
-
-    Linux
-    ```
-    export HF_ENDPOINT=https://hf-mirror.com
-    ```
-    Windows Powershell
-    ```
-    $env:HF_ENDPOINT = "https://hf-mirror.com"
-    ```
-    Download model
-    ```
-    huggingface-cli download --resume-download --local-dir-use-symlinks False THUDM/chatglm3-6b --local-dir chatglm3-6b
-    ```
-
-
-**3. Quantize model:**
-
-```
-python3 quantize.py
+python3 convert.py --model_id THUDM/chatglm3-6b --output {your_path}/chatglm3-6b
 ```
 
-Paramters:
-* `--model_path` - path with directory where OpenVINO IR model located.
-* `--precision` - quantization precison: int8 or int4.
-* `--output` - path to save model.
+### Parameters that can be selected
 
-**4. Run streaming chatbot:**
+* `--model_id` - path (absolute path) to be used from Huggngface_hub (https://huggingface.co/models) or the directory where the model is located.
+* `--output` - the address where the converted model is saved
+* If you have difficulty accessing `huggingface`, you can try to use `mirror-hf` to download
+
+   Linux
+     ```
+     export HF_ENDPOINT=https://hf-mirror.com
+     ```
+   Windows Powershell
+     ```
+     $env:HF_ENDPOINT = "https://hf-mirror.com"
+     ```
+   Download model
+     ```
+     huggingface-cli download --resume-download --local-dir-use-symlinks False THUDM/chatglm3-6b --local-dir {your_path}/chatglm3-6b
+     ```
+
+parameter:
+
+* `--model_id` - model_id is used to download from Huggngface_hub (https://huggingface.co/models) or the path to the directory where the pytorch model is located.
+* `--output` - Path to save the model.
+
+## 3. Quantitative model (optional)
 
 ```
-python3 chat.py -m "./chatglm3_compressed"
+python3 quantize.py --model_path {your_path}/chatglm3-6b --precision int4 --output {your_path}/chatglm3-6b-int4
 ```
 
-Paramters:
-* `--model_path` - path with directory where OpenVINO IR model located.
-* `--max_sequence_length` - maximun size of output tokens.
-* `--device` - device to run inference.
+### Parameters that can be selected
 
-Examples:
+* `--model_path` - The path to the directory where the OpenVINO IR model is located.
+* `--precision` - Quantization precision: int8 or int4.
+* `--output` - Path to save the model.
+
+## 4. Run the streaming chatbot
+
 ```
-用户: 你好
-AI助手: 你好！有什么我可以帮助你的吗？
-
-用户: 你是谁？     
-AI助手: 我是一个名为ChatGLM3-6B的人工智能助手，是由清华大学KEG实验室和智谱AI 公司于2023 年共同训练的语言模型开发而成。我的任务是针对用户的问题和要求提供适当的答复和支持。
-
-用户: 请给我讲一个有趣的故事
-AI助手: 从前，有一个名叫小明的小男孩，他是一个非常喜欢动物的人。有一天，他在森林里散步时，发现了一个非常漂亮的小鸟。小鸟受伤了，无法飞行。小明非常心疼，于是决定照顾这只小鸟。小明带着小鸟回家，为它搭建了一个小小的巢穴，并找来了一些软草和食物。每天，他都会给小鸟喂食，并为它换水。渐渐地，小鸟的伤势好了起来，开始在小明的家里飞来飞去，它们成了非常好的朋友。然而，一天，小明的父母告诉他，他们必须把小明养的小鸟送到森林里去。小明非常伤心，因为他已经和小鸟成为了好朋友。但是，他的父母告诉他，小鸟在森林里会更加自由自在，而且他也可以继续观看小鸟在森林中的生活。于是，小明和他的父母一起将小鸟送到了森林中。小鸟非常高兴，因为它又可以飞行了，并且还有许多其他的小动物朋友。小明也感到非常开心，因为他知道，即使不能一直拥有小鸟，他仍然可以欣赏到它们在自然中的美丽。从此以后，小明常常来到森林中，寻找小鸟。
-
-用户: 请给这个故事起一个标题
-AI助手: 《友谊的力量：小明与小鸟的森林冒险》
+python3 chat.py --model_path {your_path}/chatglm3-6b --max_sequence_length 4096 --device CPU
 ```
+
+### Parameters that can be selected
+
+* `--model_path` - The path to the directory where the OpenVINO IR model is located.
+* `--max_sequence_length` - Maximum size of output tokens.
+* `--device` - The device to run inference on.
+
+## example
+
+```
+User: Hello
+AI Assistant: Hello! Is there anything I can do to help you?
+
+User: Who are you?
+ChatGLM3-6B-OpenVINO: I am an artificial intelligence assistant named ChatGLM3-6B, which was developed from a language model jointly trained by Tsinghua University’s KEG Laboratory and Zhipu AI Company in 2023. My role is to provide appropriate responses and support to users' questions and requests.
+
+User: Please tell me an interesting story
+ChatGLM3-6B-OpenVINO: Once upon a time, there was a little boy named Xiao Ming who loved animals very much. One day, while walking in the forest, he discovered a very beautiful bird. The bird was injured and could not fly. Xiao Ming felt very distressed and decided to take care of the little bird. Xiao Ming took the bird home, built a small nest for it, and found some soft grass and food. Every day, he feeds the bird and changes its water. Gradually, the bird's injury recovered and began to fly around Xiao Ming's home. They became very good friends. However, one day, Xiao Ming's parents told him that they must send Xiao Ming's little bird to the forest. Xiao Ming was very sad because he had become good friends with Xiaoniao. However, his parents told him that the bird would be more free in the forest and that he could continue to watch the bird's life in the forest. So, Xiao Ming and his parents sent the bird to the forest. The little bird is very happy because it can fly again and has many other little animal friends. Xiao Ming also felt very happy because he knew that even if he could not always have the birds, he could still appreciate their beauty in nature. From then on, Xiao Ming often came to the forest to look for birds.
+
+User: Please give this story a title
+ChatGLM3-6B-OpenVINO: "The Power of Friendship: Xiao Ming and Bird's Forest Adventure"
+```
+
+## common problem
+1. Why does a huggingface link error appear when importing a local model?
+    - Downgrade transformers library to version 4.37.2
+
+2. Do I need to install the OpenVINO C++ inference engine?
+    - unnecessary
+
+3. Do I have to use Intel CPU?
+    - Not necessarily, AMD CPU will also work. But it is recommended to use Intel CPU
+4. Does it support GPU?
+    -Support Intel ARC series GPU
