@@ -1,22 +1,16 @@
 import argparse
-from optimum.intel.openvino import OVModelForCausalLM
-from transformers import (PretrainedConfig, AutoTokenizer, AutoConfig,
-                          TextIteratorStreamer, StoppingCriteriaList, StoppingCriteria)
 
 from optimum.utils import NormalizedTextConfig, NormalizedConfigManager
 from optimum.intel.openvino import OVModelForCausalLM
 from optimum.intel.openvino.utils import OV_XML_FILE_NAME
-from pathlib import Path
+
+from transformers import (PretrainedConfig, AutoTokenizer, AutoConfig,
+                          TextIteratorStreamer, StoppingCriteriaList, StoppingCriteria)
+
 from typing import Optional, Union, Dict, List, Tuple
 from pathlib import Path
 from threading import Thread
 import torch
-
-
-def text_processor(new_text):
-    new_text = new_text.strip()
-    new_text = new_text.replace("[[训练时间]]", "2023年")
-    return new_text
 
 
 class StopOnTokens(StoppingCriteria):
@@ -24,7 +18,7 @@ class StopOnTokens(StoppingCriteria):
         self.token_ids = token_ids
 
     def __call__(
-        self, input_ids: torch.LongTensor, scores: torch.FloatTensor, **kwargs
+            self, input_ids: torch.LongTensor, scores: torch.FloatTensor, **kwargs
     ) -> bool:
         for stop_id in self.token_ids:
             if input_ids[0][-1] == stop_id:
@@ -38,14 +32,14 @@ class OVCHATGLMModel(OVModelForCausalLM):
     """
 
     def __init__(
-        self,
-        model: "Model",
-        config: "PretrainedConfig" = None,
-        device: str = "CPU",
-        dynamic_shapes: bool = True,
-        ov_config: Optional[Dict[str, str]] = None,
-        model_save_dir: Optional[Union[str, Path]] = None,
-        **kwargs,
+            self,
+            model: "Model",
+            config: "PretrainedConfig" = None,
+            device: str = "CPU",
+            dynamic_shapes: bool = True,
+            ov_config: Optional[Dict[str, str]] = None,
+            model_save_dir: Optional[Union[str, Path]] = None,
+            **kwargs,
     ):
         NormalizedConfigManager._conf["chatglm"] = NormalizedTextConfig.with_args(
             num_layers="num_hidden_layers",
@@ -57,9 +51,9 @@ class OVCHATGLMModel(OVModelForCausalLM):
         )
 
     def _reshape(
-        self,
-        model: "Model",
-        *args, **kwargs
+            self,
+            model: "Model",
+            *args, **kwargs
     ):
         shapes = {}
         for inputs in model.inputs:
@@ -78,19 +72,19 @@ class OVCHATGLMModel(OVModelForCausalLM):
 
     @classmethod
     def _from_pretrained(
-        cls,
-        model_id: Union[str, Path],
-        config: PretrainedConfig,
-        use_auth_token: Optional[Union[bool, str, None]] = None,
-        revision: Optional[Union[str, None]] = None,
-        force_download: bool = False,
-        cache_dir: Optional[str] = None,
-        file_name: Optional[str] = None,
-        subfolder: str = "",
-        from_onnx: bool = False,
-        local_files_only: bool = False,
-        load_in_8bit: bool = False,
-        **kwargs,
+            cls,
+            model_id: Union[str, Path],
+            config: PretrainedConfig,
+            use_auth_token: Optional[Union[bool, str, None]] = None,
+            revision: Optional[Union[str, None]] = None,
+            force_download: bool = False,
+            cache_dir: Optional[str] = None,
+            file_name: Optional[str] = None,
+            subfolder: str = "",
+            from_onnx: bool = False,
+            local_files_only: bool = False,
+            load_in_8bit: bool = False,
+            **kwargs,
     ):
         model_path = Path(model_id)
         default_file_name = OV_XML_FILE_NAME
@@ -140,7 +134,6 @@ if __name__ == "__main__":
                         help='Required. device for inference')
     args = parser.parse_args()
 
-    start_message = "你是一个乐于助人、尊重他人以及诚实可靠的助手。在安全的情况下，始终尽可能有帮助地回答。 您的回答不应包含任何有害、不道德、种族主义、性别歧视、有毒、危险或非法的内容。请确保您的回答在社会上是公正的和积极的。如果一个问题没有任何意义或与事实不符，请解释原因，而不是回答错误的问题。如果您不知道问题的答案，请不要分享虚假信息。另外，答案请使用中文。"
     ov_config = {"PERFORMANCE_HINT": "LATENCY",
                  "NUM_STREAMS": "1", "CACHE_DIR": ""}
 
@@ -163,7 +156,9 @@ if __name__ == "__main__":
     stop_tokens = [0, 2]
     stop_tokens = [StopOnTokens(stop_tokens)]
 
+
     def convert_history_to_token(history: List[Tuple[str, str]]):
+
         messages = []
         for idx, (user_msg, model_msg) in enumerate(history):
             if idx == len(history) - 1 and not model_msg:
@@ -174,12 +169,12 @@ if __name__ == "__main__":
             if model_msg:
                 messages.append({"role": "assistant", "content": model_msg})
 
-        print("\n\n====conversation====\n", messages)
         model_inputs = tokenizer.apply_chat_template(messages,
                                                      add_generation_prompt=True,
                                                      tokenize=True,
                                                      return_tensors="pt")
         return model_inputs
+
 
     history = []
     print("====Starting conversation====")
@@ -193,12 +188,11 @@ if __name__ == "__main__":
             print("AI助手: 对话历史已清空")
             continue
 
+        print("ChatGLM3-6B-OpenVINO:", end=" ")
         history = history + [[input_text, ""]]
-
-        input_ids = convert_history_to_token(history)
-
+        model_inputs = convert_history_to_token(history)
         generate_kwargs = dict(
-            input_ids=input_ids,
+            input_ids=model_inputs,
             max_new_tokens=args.max_sequence_length,
             temperature=0.1,
             do_sample=True,
@@ -211,10 +205,10 @@ if __name__ == "__main__":
 
         t1 = Thread(target=ov_model.generate, kwargs=generate_kwargs)
         t1.start()
-        print("AI助手: ", end="")
+
         partial_text = ""
         for new_text in streamer:
-            new_text = text_processor(new_text)
+            new_text = new_text
             print(new_text, end="", flush=True)
             partial_text += new_text
         print("\n")
