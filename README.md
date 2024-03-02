@@ -25,6 +25,7 @@ Paramters:
 * `--model_id` - model_id for downloading from huggngface_hub (https://huggingface.co/models) or path with directory where pytorch model located.
 *  `--output` - path to save model.
 * For PRC user, you can download model with `mirror-hf` in advance
+
     Linux
     ```
     export HF_ENDPOINT=https://hf-mirror.com
