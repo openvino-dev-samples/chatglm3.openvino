@@ -1,3 +1,5 @@
+简体中文 | [English](README.md)
+
 # chatglm3.openvino Demo
 
 这是如何使用 OpenVINO 部署 ChatGLM3 的示例
@@ -72,7 +74,7 @@ python3 chat.py --model_path {your_path}/chatglm3-6b --max_sequence_length 4096 
 
 * `--model_path` - OpenVINO IR 模型所在目录的路径。
 * `--max_sequence_length` - 输出标记的最大大小。
-* `--device` - 运行推理的设备。
+* `--device` - 运行推理的设备。例如："CPU","GPU"。
 
 ## 例子
 
@@ -100,4 +102,5 @@ ChatGLM3-6B-OpenVINO: 《友谊的力量：小明与小鸟的森林冒险》
 3. 一定要使用 Intel 的硬件吗？
    - 我们仅在 Intel 设备上尝试，我们推荐使用x86架构的英特尔设备，包括但不限制于：
    - 英特尔的CPU，包括个人电脑CPU 和服务器CPU。
-   - 英特尔的独立显卡。例如：ARC A770 显卡。
+   - 英特尔的集成显卡。 例如：Arc™，Iris® 系列。
+   - 英特尔的独立显卡。例如：ARC™ A770 显卡。

@@ -1,3 +1,5 @@
+English | [简体中文](README_zh.md)
+
 # chatglm3.openvino Demo
 
 Here is an example of how to deploy ChatGLM3 using OpenVINO
@@ -74,7 +76,7 @@ python3 chat.py --model_path {your_path}/chatglm3-6b --max_sequence_length 4096 
 
 * `--model_path` - The path to the directory where the OpenVINO IR model is located.
 * `--max_sequence_length` - Maximum size of output tokens.
-* `--device` - The device to run inference on.
+* `--device` - The device to run inference on. e.g "CPU","GPU".
 
 ## example
 
@@ -104,4 +106,5 @@ ChatGLM3-6B-OpenVINO: "The Power of Friendship: Xiao Ming and Bird's Forest Adve
     - We only tried it on Intel devices, and we recommend using x86 architecture Intel devices, including but not
       limited to:
     - Intel CPU, including personal computer CPU and server CPU.
-    - Intel's discrete graphics card. For example: ARC A770 graphics card.
+    - Intel's integrated GPU. For example: Arc™ Series and Iris® Series.
+    - Intel's discrete graphics card. For example: ARC™ A770 graphics card.
