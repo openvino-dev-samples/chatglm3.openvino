@@ -16,15 +16,28 @@ pip install wheel setuptools
 pip install -r requirements.txt
 ```
 
-**2. Convert model:**
+**2. Download and Convert model:**
 
 ```
 python3 convert.py
 ```
-
 Paramters:
 * `--model_id` - model_id for downloading from huggngface_hub (https://huggingface.co/models) or path with directory where pytorch model located.
 *  `--output` - path to save model.
+* For PRC user, you can download model with `mirror-hf` in advance
+    Linux
+    ```
+    export HF_ENDPOINT=https://hf-mirror.com
+    ```
+    Windows Powershell
+    ```
+    $env:HF_ENDPOINT = "https://hf-mirror.com"
+    ```
+    Download model
+    ```
+    huggingface-cli download --resume-download --local-dir-use-symlinks False THUDM/chatglm3-6b --local-dir chatglm3-6b
+    ```
+
 
 **3. Quantize model:**
 

@@ -1,5 +1,7 @@
-git+https://github.com/huggingface/optimum-intel.git
-git+https://github.com/openvinotoolkit/nncf.git
+--extra-index-url https://download.pytorch.org/whl/cpu
+nncf>=2.8.1
+optimum-intel>=1.15.2
 transformers>=4.38.1
 openvino-nightly
 onnx
+huggingface-hub

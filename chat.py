@@ -144,7 +144,7 @@ if __name__ == "__main__":
     ov_config = {"PERFORMANCE_HINT": "LATENCY",
                  "NUM_STREAMS": "1", "CACHE_DIR": ""}
 
-    tok = AutoTokenizer.from_pretrained(
+    tokenizer = AutoTokenizer.from_pretrained(
         args.model_path, trust_remote_code=True)
     model_dir = args.model_path
 
@@ -158,25 +158,28 @@ if __name__ == "__main__":
     )
 
     streamer = TextIteratorStreamer(
-        tok, timeout=30.0, skip_prompt=True, skip_special_tokens=True
+        tokenizer, timeout=30.0, skip_prompt=True, skip_special_tokens=True
     )
-    stop_tokens = [2, 64795, 64797]
+    stop_tokens = [0, 2]
     stop_tokens = [StopOnTokens(stop_tokens)]
 
     def convert_history_to_token(history: List[Tuple[str, str]]):
-        input_ids = []
-        input_ids.extend(tok.build_single_message("system", "", start_message))
-        for old_query, response in history[:-1]:
-            input_ids.extend(tok.build_single_message("user", "", old_query))
-            input_ids.extend(tok.build_single_message(
-                "assistant", "", response))
-        input_ids.extend(tok.build_single_message(
-            "user", "", history[-1][0]))
-        input_ids.extend([tok.get_command("<|assistant|>")])
-        input_token = tok.batch_encode_plus(
-            [input_ids], return_tensors="pt", is_split_into_words=True
-        ).input_ids
-        return input_token
+        messages = []
+        for idx, (user_msg, model_msg) in enumerate(history):
+            if idx == len(history) - 1 and not model_msg:
+                messages.append({"role": "user", "content": user_msg})
+                break
+            if user_msg:
+                messages.append({"role": "user", "content": user_msg})
+            if model_msg:
+                messages.append({"role": "assistant", "content": model_msg})
+
+        print("\n\n====conversation====\n", messages)
+        model_inputs = tokenizer.apply_chat_template(messages,
+                                                     add_generation_prompt=True,
+                                                     tokenize=True,
+                                                     return_tensors="pt")
+        return model_inputs
 
     history = []
     print("====Starting conversation====")
