@@ -32,7 +32,7 @@ python3 convert.py --model_id THUDM/chatglm3-6b --output {your_path}/chatglm3-6b
 
 * `--model_id` - path (absolute path) to be used from Huggngface_hub (https://huggingface.co/models) or the directory
   where the model is located.
-* `--output` - the address where the converted model is saved
+* `--output` - the path where the converted model is saved
 * If you have difficulty accessing `huggingface`, you can try to use `mirror-hf` to download
 
   Linux
@@ -47,12 +47,6 @@ python3 convert.py --model_id THUDM/chatglm3-6b --output {your_path}/chatglm3-6b
      ```
      huggingface-cli download --resume-download --local-dir-use-symlinks False THUDM/chatglm3-6b --local-dir {your_path}/chatglm3-6b
      ```
-
-parameter:
-
-* `--model_id` - model_id is used to download from Huggngface_hub (https://huggingface.co/models) or the path to the
-  directory where the pytorch model is located.
-* `--output` - Path to save the model.
 
 ## 3. Quantitative model (optional)
 

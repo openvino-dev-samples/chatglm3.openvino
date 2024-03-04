@@ -47,11 +47,6 @@ python3 convert.py --model_id THUDM/chatglm3-6b --output {your_path}/chatglm3-6b
     huggingface-cli download --resume-download --local-dir-use-symlinks False THUDM/chatglm3-6b --local-dir {your_path}/chatglm3-6b 
     ```
 
-参数：
-
-* `--model_id` - model_id 用于从 Huggngface_hub (https://huggingface.co/models) 或 pytorch 模型所在目录的路径下载。
-* `--output` - 保存模型的路径。
-
 ## 3. 量化模型（非必须）
 
 ```
