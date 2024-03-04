@@ -94,13 +94,13 @@ User: Please give this story a title
 ChatGLM3-6B-OpenVINO: "The Power of Friendship: Xiao Ming and Bird's Forest Adventure"
 ```
 
-## common problem
+## Common problem
 
 1. Why does a huggingface link error appear when importing a local model?
     - Downgrade transformers library to version 4.37.2
 
 2. Do I need to install the OpenVINO C++ inference engine?
-    - unnecessary
+    - Unnecessary
 
 3. Do I have to use Intel hardware?
     - We only tried it on Intel devices, and we recommend using x86 architecture Intel devices, including but not
@@ -108,3 +108,11 @@ ChatGLM3-6B-OpenVINO: "The Power of Friendship: Xiao Ming and Bird's Forest Adve
     - Intel CPU, including personal computer CPU and server CPU.
     - Intel's integrated GPU. For example: Arc™ Series and Iris® Series.
     - Intel's discrete graphics card. For example: ARC™ A770 graphics card.
+  
+4. Why OpenVINO cannot find GPU device in my system?
+   - Ensure OpenCL diivess are installed correctly.
+   - Ensure you enabled the right permissions for GPU device
+   - More information can be found in [Install GPU drivers](https://github.com/openvinotoolkit/openvino_notebooks/wiki/Ubuntu#1-install-python-git-and-gpu-drivers-optional)
+
+5. Whether support C++?
+   - Please refer to this [example](https://github.com/openvinotoolkit/openvino.genai/tree/master/text_generation/causal_lm/cpp)
