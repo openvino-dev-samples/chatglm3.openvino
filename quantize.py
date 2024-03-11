@@ -75,3 +75,8 @@ if __name__ == '__main__':
     tokenizer = AutoTokenizer.from_pretrained(
         args.model_path, trust_remote_code=True)
     tokenizer.save_pretrained(compressed_model_path)
+    configuration_file = orignal_model_path / "configuration_chatglm.py"
+    if configuration_file.exists():
+        shutil.copy(
+            configuration_file, compressed_model_path / "configuration_chatglm.py"
+        )
