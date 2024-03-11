@@ -93,7 +93,7 @@ if __name__ == "__main__":
     )
 
     streamer = TextIteratorStreamer(
-        tokenizer, timeout=30.0, skip_prompt=True, skip_special_tokens=True
+        tokenizer, timeout=60.0, skip_prompt=True, skip_special_tokens=True
     )
     stop_tokens = [0, 2]
     stop_tokens = [StopOnTokens(stop_tokens)]
