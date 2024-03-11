@@ -76,13 +76,12 @@ if __name__ == "__main__":
                         type=str,
                         help='Required. device for inference')
     args = parser.parse_args()
+    model_dir = args.model_path
 
     ov_config = {"PERFORMANCE_HINT": "LATENCY",
                  "NUM_STREAMS": "1", "CACHE_DIR": ""}
-
-    tokenizer = AutoTokenizer.from_pretrained(
-        args.model_path, trust_remote_code=True)
-    model_dir = args.model_path
+  
+    tokenizer = AutoTokenizer.from_pretrained(model_dir, trust_remote_code=True)
 
     print("====Compiling model====")
     ov_model = OVCHATGLMModel.from_pretrained(
