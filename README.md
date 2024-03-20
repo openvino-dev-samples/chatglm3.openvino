@@ -41,7 +41,7 @@ pip install -r requirements.txt
 Since the Huggingface model needs to be converted to an OpenVINO IR model, you need to download the model and convert.
 
 ```
-python3 convert.py --model_id THUDM/chatglm3-6b --output {your_path}/chatglm3-6b
+python3 convert.py --model_id THUDM/chatglm3-6b --output {your_path}/chatglm3-6b-ov
 ```
 
 ### Parameters that can be selected
@@ -67,7 +67,7 @@ python3 convert.py --model_id THUDM/chatglm3-6b --output {your_path}/chatglm3-6b
 ## 3. Quantitative model (optional)
 
 ```
-python3 quantize.py --model_path {your_path}/chatglm3-6b --precision int4 --output {your_path}/chatglm3-6b-int4
+python3 quantize.py --model_path {your_path}/chatglm3-6b-ov --precision int4 --output {your_path}/chatglm3-6b-ov-int4
 ```
 
 ### Parameters that can be selected
@@ -79,7 +79,7 @@ python3 quantize.py --model_path {your_path}/chatglm3-6b --precision int4 --outp
 ## 4. Run the streaming chatbot
 
 ```
-python3 chat.py --model_path {your_path}/chatglm3-6b --max_sequence_length 4096 --device CPU
+python3 chat.py --model_path {your_path}/chatglm3-6b-ov-int4 --max_sequence_length 4096 --device CPU
 ```
 
 ### Parameters that can be selected
