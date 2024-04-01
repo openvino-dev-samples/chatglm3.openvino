@@ -64,7 +64,7 @@ python3 convert.py --model_id THUDM/chatglm3-6b --output {your_path}/chatglm3-6b
      huggingface-cli download --resume-download --local-dir-use-symlinks False THUDM/chatglm3-6b --local-dir {your_path}/chatglm3-6b
      ```
 
-## 3. Quantitative model (optional)
+## 3. Quantize model (optional)
 
 ```
 python3 quantize.py --model_path {your_path}/chatglm3-6b-ov --precision int4 --output {your_path}/chatglm3-6b-ov-int4
