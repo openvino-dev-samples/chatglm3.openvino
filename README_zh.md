@@ -7,6 +7,7 @@
 ## 1. 环境配置
 
 我们推荐您新建一个虚拟环境，然后按照以下安装依赖。
+推荐在python3.10以上的环境下运行该示例。
 
 Linux
 
@@ -64,16 +65,10 @@ python3 convert.py --model_id THUDM/chatglm3-6b --precision int4 --output {your_
     huggingface-cli download --resume-download --local-dir-use-symlinks False THUDM/chatglm3-6b --local-dir {your_path}/chatglm3-6b 
     ```
 
-### 可以选择的参数
-
-* `--model_path` - OpenVINO IR 模型所在目录的路径。
-* `-- precision` - 量化精度：int8 或 int4。
-* `--output` - 保存模型的路径。
-
 ## 3. 运行流式聊天机器人
 
 ```
-python3 chat.py --model_path {your_path}/chatglm3-6b-ov-int4 --max_sequence_length 4096 --device CPU
+python3 chat.py --model_path {your_path}/chatglm3-6b-ov --max_sequence_length 4096 --device CPU
 ```
 
 ### 可以选择的参数

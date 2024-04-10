@@ -69,7 +69,7 @@ python3 convert.py --model_id THUDM/chatglm3-6b --precision int4 --output {your_
 ## 3. Run the streaming chatbot
 
 ```
-python3 chat.py --model_path {your_path}/chatglm3-6b-ov-int4 --max_sequence_length 4096 --device CPU
+python3 chat.py --model_path {your_path}/chatglm3-6b-ov --max_sequence_length 4096 --device CPU
 ```
 
 ### Parameters that can be selected
