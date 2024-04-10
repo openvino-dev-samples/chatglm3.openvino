@@ -6,7 +6,8 @@ Here is an example of how to deploy ChatGLM3 using OpenVINO
 
 ## 1. Environment configuration
 
-We recommend that you create a new virtual environment and then install the dependencies as follows.
+We recommend that you create a new virtual environment and then install the dependencies as follows. The 
+recommended Python version is `3.10+`.
 
 Linux
 
@@ -41,13 +42,14 @@ pip install -r requirements.txt
 Since the Huggingface model needs to be converted to an OpenVINO IR model, you need to download the model and convert.
 
 ```
-python3 convert.py --model_id THUDM/chatglm3-6b --output {your_path}/chatglm3-6b-ov
+python3 convert.py --model_id THUDM/chatglm3-6b --precision int4 --output {your_path}/chatglm3-6b-ov
 ```
 
 ### Parameters that can be selected
 
 * `--model_id` - path (absolute path) to be used from Huggngface_hub (https://huggingface.co/models) or the directory
   where the model is located.
+* `--precision` - model precision: fp16, int8 or int4.
 * `--output` - the path where the converted model is saved
 * If you have difficulty accessing `huggingface`, you can try to use `mirror-hf` to download
 
@@ -64,19 +66,7 @@ python3 convert.py --model_id THUDM/chatglm3-6b --output {your_path}/chatglm3-6b
      huggingface-cli download --resume-download --local-dir-use-symlinks False THUDM/chatglm3-6b --local-dir {your_path}/chatglm3-6b
      ```
 
-## 3. Quantize model (optional)
-
-```
-python3 quantize.py --model_path {your_path}/chatglm3-6b-ov --precision int4 --output {your_path}/chatglm3-6b-ov-int4
-```
-
-### Parameters that can be selected
-
-* `--model_path` - The path to the directory where the OpenVINO IR model is located.
-* `--precision` - Quantization precision: int8 or int4.
-* `--output` - Path to save the model.
-
-## 4. Run the streaming chatbot
+## 3. Run the streaming chatbot
 
 ```
 python3 chat.py --model_path {your_path}/chatglm3-6b-ov-int4 --max_sequence_length 4096 --device CPU

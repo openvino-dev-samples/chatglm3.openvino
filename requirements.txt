@@ -1,5 +1,5 @@
 nncf==2.8.1
-optimum-intel>=1.15.2
+optimum-intel>=1.16.0
 transformers>=4.37.2
 openvino>=2024.0.0
 onnx>=1.15.0

@@ -1,16 +1,42 @@
 import argparse
-
-from optimum.utils import NormalizedTextConfig, NormalizedConfigManager
-from optimum.intel.openvino import OVModelForCausalLM
-from optimum.intel.openvino.utils import OV_XML_FILE_NAME
-
-from transformers import (PretrainedConfig, AutoTokenizer, AutoConfig,
-                          TextIteratorStreamer, StoppingCriteriaList, StoppingCriteria)
-
-from typing import Optional, Union, Dict, List, Tuple
-from pathlib import Path
+from typing import List, Tuple
 from threading import Thread
 import torch
+from optimum.intel.openvino import OVModelForCausalLM
+from transformers import (AutoTokenizer, AutoConfig,
+                          TextIteratorStreamer, StoppingCriteriaList, StoppingCriteria)
+
+
+def parse_text(text):
+    lines = text.split("\n")
+    lines = [line for line in lines if line != ""]
+    count = 0
+    for i, line in enumerate(lines):
+        if "```" in line:
+            count += 1
+            items = line.split('`')
+            if count % 2 == 1:
+                lines[i] = f'<pre><code class="language-{items[-1]}">'
+            else:
+                lines[i] = f'<br></code></pre>'
+        else:
+            if i > 0:
+                if count % 2 == 1:
+                    line = line.replace("`", "\`")
+                    line = line.replace("<", "&lt;")
+                    line = line.replace(">", "&gt;")
+                    line = line.replace(" ", "&nbsp;")
+                    line = line.replace("*", "&ast;")
+                    line = line.replace("_", "&lowbar;")
+                    line = line.replace("-", "&#45;")
+                    line = line.replace(".", "&#46;")
+                    line = line.replace("!", "&#33;")
+                    line = line.replace("(", "&#40;")
+                    line = line.replace(")", "&#41;")
+                    line = line.replace("$", "&#36;")
+                lines[i] = "<br>" + line
+    text = "".join(lines)
+    return text
 
 
 class StopOnTokens(StoppingCriteria):
@@ -24,32 +50,6 @@ class StopOnTokens(StoppingCriteria):
             if input_ids[0][-1] == stop_id:
                 return True
         return False
-
-
-class OVCHATGLMModel(OVModelForCausalLM):
-    """
-    Optimum intel compatible model wrapper for CHATGLM2
-    """
-
-    def _reshape(
-            self,
-            model: "Model",
-            *args, **kwargs
-    ):
-        shapes = {}
-        for inputs in model.inputs:
-            shapes[inputs] = inputs.get_partial_shape()
-            shapes[inputs][0] = -1
-            input_name = inputs.get_any_name()
-            if input_name.startswith('beam_idx'):
-                continue
-            if input_name.startswith('past_key_values'):
-                shapes[inputs][1] = -1
-                shapes[inputs][2] = 2
-            elif shapes[inputs].rank.get_length() > 1:
-                shapes[inputs][1] = -1
-        model.reshape(shapes)
-        return model
 
 
 if __name__ == "__main__":
@@ -80,11 +80,12 @@ if __name__ == "__main__":
 
     ov_config = {"PERFORMANCE_HINT": "LATENCY",
                  "NUM_STREAMS": "1", "CACHE_DIR": ""}
-  
-    tokenizer = AutoTokenizer.from_pretrained(model_dir, trust_remote_code=True)
+
+    tokenizer = AutoTokenizer.from_pretrained(
+        model_dir, trust_remote_code=True)
 
     print("====Compiling model====")
-    ov_model = OVCHATGLMModel.from_pretrained(
+    ov_model = OVModelForCausalLM.from_pretrained(
         model_dir,
         device=args.device,
         ov_config=ov_config,
@@ -97,7 +98,6 @@ if __name__ == "__main__":
     )
     stop_tokens = [0, 2]
     stop_tokens = [StopOnTokens(stop_tokens)]
-
 
     def convert_history_to_token(history: List[Tuple[str, str]]):
 
@@ -117,7 +117,6 @@ if __name__ == "__main__":
                                                      return_tensors="pt")
         return model_inputs
 
-
     history = []
     print("====Starting conversation====")
     while True:
@@ -131,7 +130,7 @@ if __name__ == "__main__":
             continue
 
         print("ChatGLM3-6B-OpenVINO:", end=" ")
-        history = history + [[input_text, ""]]
+        history = history + [[parse_text(input_text), ""]]
         model_inputs = convert_history_to_token(history)
         generate_kwargs = dict(
             input_ids=model_inputs,

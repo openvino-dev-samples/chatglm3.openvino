@@ -41,12 +41,13 @@ pip install -r requirements.txt
 由于需要将Huggingface模型转换为OpenVINO IR模型，因此您需要下载模型并转换。
 
 ```
-python3 convert.py --model_id THUDM/chatglm3-6b --output {your_path}/chatglm3-6b-ov 
+python3 convert.py --model_id THUDM/chatglm3-6b --precision int4 --output {your_path}/chatglm3-6b-ov 
 ```
 
 ### 可以选择的参数
 
-* `--model_id` - 用于从 Huggngface_hub (https://huggingface.co/models) 或 模型所在目录的路径（绝对路径）。
+* `--model_id` - 用于从 Huggngface_hub (https://huggingface.co/models) 或 模型所在目录的路径（绝对路径）
+* `--precision` - 模型精度：fp16, int8 或 int4。
 * `--output` - 转换后模型保存的地址
 * 如果您访问`huggingface` 有困难，你可以尝试使用 `mirror-hf` 进行下载
 
@@ -63,19 +64,13 @@ python3 convert.py --model_id THUDM/chatglm3-6b --output {your_path}/chatglm3-6b
     huggingface-cli download --resume-download --local-dir-use-symlinks False THUDM/chatglm3-6b --local-dir {your_path}/chatglm3-6b 
     ```
 
-## 3. 量化模型（非必须）
-
-```
-python3 quantize.py --model_path {your_path}/chatglm3-6b-ov --precision int4 --output {your_path}/chatglm3-6b-ov-int4
-```
-
 ### 可以选择的参数
 
 * `--model_path` - OpenVINO IR 模型所在目录的路径。
 * `-- precision` - 量化精度：int8 或 int4。
 * `--output` - 保存模型的路径。
 
-## 4. 运行流式聊天机器人
+## 3. 运行流式聊天机器人
 
 ```
 python3 chat.py --model_path {your_path}/chatglm3-6b-ov-int4 --max_sequence_length 4096 --device CPU
