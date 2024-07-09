@@ -115,4 +115,4 @@ ChatGLM3-6B-OpenVINO: "The Power of Friendship: Xiao Ming and Bird's Forest Adve
    - More information can be found in [Install GPU drivers](https://github.com/openvinotoolkit/openvino_notebooks/wiki/Ubuntu#1-install-python-git-and-gpu-drivers-optional)
 
 5. Whether support C++?
-   - Please refer to this [example]([https://github.com/openvinotoolkit/openvino.genai/tree/master/text_generation/causal_lm/cpp](https://github.com/openvinotoolkit/openvino.genai/tree/master/src))
+   - Please refer to this [example](https://github.com/openvinotoolkit/openvino.genai/tree/master/src)
