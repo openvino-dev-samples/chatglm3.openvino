@@ -112,4 +112,4 @@ ChatGLM3-6B-OpenVINO: 《友谊的力量：小明与小鸟的森林冒险》
    - 更多信息可以参考[Install GPU drivers](https://github.com/openvinotoolkit/openvino_notebooks/wiki/Ubuntu#1-install-python-git-and-gpu-drivers-optional)
 
 5. 是否支持C++？
-   - C++示例可以[参考](https://github.com/openvinotoolkit/openvino.genai/tree/master/text_generation/causal_lm/cpp)
+   - C++示例可以[参考](https://github.com/openvinotoolkit/openvino.genai/tree/master/src)
