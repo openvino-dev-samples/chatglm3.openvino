@@ -42,7 +42,7 @@ pip install -r requirements.txt
 Since the Huggingface model needs to be converted to an OpenVINO IR model, you need to download the model and convert.
 
 ```
-python3 convert.py --model_id THUDM/chatglm3-6b --precision int4 --output {your_path}/chatglm3-6b-ov
+python3 convert.py --model_id ZhipuAI/chatglm3-6b --precision int4 --output {your_path}/chatglm3-6b-ov --modelscope
 ```
 
 ### Parameters that can be selected
@@ -51,25 +51,18 @@ python3 convert.py --model_id THUDM/chatglm3-6b --precision int4 --output {your_
   where the model is located.
 * `--precision` - model precision: fp16, int8 or int4.
 * `--output` - the path where the converted model is saved
-* If you have difficulty accessing `huggingface`, you can try to use `mirror-hf` to download
-
-  Linux
-     ```
-     export HF_ENDPOINT=https://hf-mirror.com
-     ```
-  Windows Powershell
-     ```
-     $env:HF_ENDPOINT = "https://hf-mirror.com"
-     ```
-  Download model
-     ```
-     huggingface-cli download --resume-download --local-dir-use-symlinks False THUDM/chatglm3-6b --local-dir {your_path}/chatglm3-6b
-     ```
+* `--modelscope` - if downloading the model from Model Scope.
 
 ## 3. Run the streaming chatbot
 
 ```
 python3 chat.py --model_path {your_path}/chatglm3-6b-ov --max_sequence_length 4096 --device CPU
+```
+
+or
+
+```
+python3 chat_genai.py --model_path {your_path}/chatglm3-6b-ov --max_sequence_length 4096 --device CPU
 ```
 
 ### Parameters that can be selected

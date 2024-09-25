@@ -47,28 +47,22 @@ python3 convert.py --model_id THUDM/chatglm3-6b --precision int4 --output {your_
 
 ### 可以选择的参数
 
-* `--model_id` - 用于从 Huggngface_hub (https://huggingface.co/models) 或 模型所在目录的路径（绝对路径）
+* `--model_id` - 用于从 Huggngface_hub (https://huggingface.co/models) 或 模型所在目录的路径（绝对路径。
 * `--precision` - 模型精度：fp16, int8 或 int4。
-* `--output` - 转换后模型保存的地址
-* 如果您访问`huggingface` 有困难，你可以尝试使用 `mirror-hf` 进行下载
+* `--output` - 转换后模型保存的地址。
+* `--modelscope` - 通过魔搭社区下载模型。
 
-  Linux
-    ```
-    export HF_ENDPOINT=https://hf-mirror.com
-    ```
-  Windows Powershell
-    ```
-    $env:HF_ENDPOINT = "https://hf-mirror.com"
-    ```
-  Download model
-    ```
-    huggingface-cli download --resume-download --local-dir-use-symlinks False THUDM/chatglm3-6b --local-dir {your_path}/chatglm3-6b 
-    ```
 
 ## 3. 运行流式聊天机器人
 
 ```
 python3 chat.py --model_path {your_path}/chatglm3-6b-ov --max_sequence_length 4096 --device CPU
+```
+
+or
+
+```
+python3 chat_genai.py --model_path {your_path}/chatglm3-6b-ov --max_sequence_length 4096 --device CPU
 ```
 
 ### 可以选择的参数
